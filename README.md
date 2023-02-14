@@ -189,7 +189,7 @@ spec:
       storage: 100Gi
 EOF
 ```
-### 7. Mount the Persisten volume to Pod
+### 12. Mount the Persisten volume to Pod
 
 ```yaml
 kubectl apply -f - <<EOF
@@ -217,7 +217,7 @@ spec:
         claimName: my-azurefile
 EOF
 ```
-### 12. Validate setup
+### 13. Validate setup
 In this example we will exec into the test pod and see if we can create a new file and append an existing file.
 ```bash
 kubectl exec -it mypod -- bash
@@ -225,12 +225,12 @@ touch /mnt/azure/helloworldagain.txt
 echo 'From AKS_A' >> helloworld.txt $$ echo 'From AKS_A' >> helloworldagain.txt
 ```
 
-### 13. Conclusion
+### 14. Conclusion
  - You should now have a storage account, which is shared by two AKS cluster residing in differen subscriptions.
  - Your storage account is protected by Azure locks, to ensure accidental deletion of azure file share doesnt occur.
     - example: when deleting the PVC in kubernetes it will automatically remove the azure file share with all data, with Azure lock, you can now delete your PVC in kubernetes without affecting the azure file share or its content.
 
 
-### 14. Credits
+### 15. Credits
  A Massive thanks to
   - **Peter Lithner** for his support
