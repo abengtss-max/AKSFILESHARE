@@ -9,7 +9,7 @@ This example instructions will walk you through how to integrate two AKS cluster
 ## Solution
  In this example we are creating a separate resource group for holding the storage account, with a lock set to **CanNotDelete** the storage account, in order to protect the data when deleting a PVC claim in AKS.
 
-![Screenshot](screenshot.png)
+![Screenshot](Screenshot.png)
 
 ## Prequsities
 
