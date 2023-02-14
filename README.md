@@ -1,19 +1,19 @@
-#  Persisting data from multiple AKS cluster to a centralized Azure File Share
+#  Persisting data from multiple AKS clusters to a centralized Azure File Share
 The code base contains a solution for persisting data from multiple AKS clusters residing in different subscriptions to one centralized Azure File Share.
 
 
 ## Introduction
-This example instructions will walk you through how to integrate two AKS cluster residing in different subscriptions with a centralized storage account. 
+This example instructions will walk you through how to integrate two AKS clusters residing in different subscriptions with a centralized storage account. 
 
 
 ## Solution
- In this example we are creating a separate resource group for holding the storage account, with a lock set to **CanNotDelete** the storage account, in order to protect the data when deleting a PVC claim in AKS.
+In this example we are creating a separate resource group for holding the storage account, with a lock set to **CanNotDelete**. This lock protects file-shares in the storage account from being deleted when a PVC in an AKS cluster is deleted
 
 ![Screenshot](Screenshot.png)
 
 ## Prequsities
 
-- Subscription A and B resides under the same tenant.
+- Subscription A and B resides under the same Azure AD tenant (a.k.a directory)
 - Azure Kubernetes cluster is running in both subscription A and subscription B
 - Need to have Owner or User access administrator role to apply permissions in subscription B
 - Access to subscription A and B.
@@ -23,15 +23,15 @@ This example instructions will walk you through how to integrate two AKS cluster
 ### 1. Create environment variables
 
 ```bash
-AKS_A_RG= < The name of AKS CLUSTER RESOURCE GROUP IN SUBSCRIPTION A >
-AKS_A_CLUSTER=< The name of the AKS CLUSTER IN SUBSCRIPTION A >
-AKS_B_RG= < The name of AKS CLUSTER RESOURCE GROUP IN SUBSCRIPTION B >
-AKS_B_CLUSTER= < The name of the AKS CLUSTER IN SUBSCRIPTION B>
-SUBSCRIPTION_ID_A = < SUBSCRIPTION ID OF SUBSCRIPTION A >
-SUBSCRIPTION_ID_B= < SUBSCRIPTION ID OF SUBSCRIPTION B >
-STORAGE_ACCOUNT_B_RG = < THE NAME OF THE RESOURCE GROUP IN SUBSCRIPTION B WERE STORAGE ACCOUNT RESIDES  >
-STORAGE_ACCOUNT_NAME= < THE NAME OF THE STORAGE ACCOUNT IN SUBSCRIPTION B  >
-AZURE_FILE_SHARE_NAME=< THE NAME OF THE FILE SHARE  >
+AKS_A_RG=<The name of AKS CLUSTER RESOURCE GROUP IN SUBSCRIPTION A>
+AKS_A_CLUSTER=<The name of the AKS CLUSTER IN SUBSCRIPTION A>
+AKS_B_RG=<The name of AKS CLUSTER RESOURCE GROUP IN SUBSCRIPTION B>
+AKS_B_CLUSTER=<The name of the AKS CLUSTER IN SUBSCRIPTION B>
+SUBSCRIPTION_ID_A=<SUBSCRIPTION ID OF SUBSCRIPTION A>
+SUBSCRIPTION_ID_B=<SUBSCRIPTION ID OF SUBSCRIPTION B>
+STORAGE_ACCOUNT_B_RG=<THE NAME OF THE RESOURCE GROUP IN SUBSCRIPTION B WERE STORAGE ACCOUNT RESIDES>
+STORAGE_ACCOUNT_NAME=<THE NAME OF THE STORAGE ACCOUNT IN SUBSCRIPTION B>
+AZURE_FILE_SHARE_NAME=<THE NAME OF THE FILE SHARE>
 ```  
 ## Procedure
 
@@ -43,7 +43,7 @@ AZURE_FILE_SHARE_NAME=< THE NAME OF THE FILE SHARE  >
  az lock create --lock-type CanNotDelete --name dataProtect --resource $STORAGE_ACCOUNT
 ```  
 ### 2. Retrieve AKS service principal for AKS A and AKS B
-We need to provide AKS cluster permission to create fileshare in the storage account as well as obtaining access keys to have permission to read and create files.
+We need to provide AKS clusters permission to create fileshare in the storage account as well as obtaining access keys to have permission to read and create files.
 ```powershell
 az account set --subscription $SUBSCRIPTION_ID_A
 SPN_A_OBJECT_ID=$(az aks show -g AKS_A_RG --name AKS_A_CLUSTER --query identity.principalId --output tsv)
@@ -226,7 +226,7 @@ echo 'From AKS_A' >> helloworld.txt $$ echo 'From AKS_A' >> helloworldagain.txt
 ```
 
 ### 14. Conclusion
- - You should now have a storage account, which is shared by two AKS cluster residing in differen subscriptions.
+ - You should now have a storage account, which is shared by two AKS clusters residing in differen subscriptions.
  - Your storage account is protected by Azure locks, to ensure accidental deletion of azure file share doesnt occur.
     - example: when deleting the PVC in kubernetes it will automatically remove the azure file share with all data, with Azure lock, you can now delete your PVC in kubernetes without affecting the azure file share or its content.
 
